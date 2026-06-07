@@ -29,6 +29,16 @@ export function ConfigEditor(props: Props) {
     });
   };
 
+  const onQuackQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...jsonData,
+        quackQuery: event.target.value,
+      },
+    });
+  };
+
   const onReadOnlyChange = (event: ChangeEvent<HTMLInputElement>) => {
     onOptionsChange({
       ...options,
@@ -93,6 +103,16 @@ export function ConfigEditor(props: Props) {
               width={60}
               rows={5}
           />
+      </InlineField>
+      <InlineField label="Quack Query" labelWidth={20} interactive
+                     tooltip={'(Optional) Remote Quack server address. When set, panel queries are routed via quack_query() instead of running locally.'}>
+        <Input
+          id="config-editor-quack-query"
+          onChange={onQuackQueryChange}
+          value={jsonData.quackQuery || ''}
+          placeholder="e.g. remote.com:9494"
+          width={40}
+        />
       </InlineField>
       <InlineField label="Read-only" labelWidth={20} interactive
         tooltip={'Open the database without write access, so a DuckDB file keeps no write lock and other processes can still write to it. Not available for an in-memory database.'}>

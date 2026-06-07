@@ -183,6 +183,15 @@ func (d *DuckDBDriver) Connect(ctx context.Context, settings backend.DataSourceI
 			}
 		}
 
+		// Installed here so a configured remote address can serve quack_query() on this connection.
+		if strings.TrimSpace(config.QuackQuery) != "" {
+			for _, query := range []string{"INSTALL quack;", "LOAD quack;"} {
+				if err := exec(query); err != nil {
+					return err
+				}
+			}
+		}
+
 		if strings.HasPrefix(cleanPath, "md:") || config.Secrets.MotherDuckToken != "" {
 			for _, query := range []string{"INSTALL 'motherduck';", "LOAD 'motherduck';"} {
 				if err := exec(query); err != nil {
@@ -237,7 +246,12 @@ func (d *DuckDBDriver) Connect(ctx context.Context, settings backend.DataSourceI
 		return nil, err
 	}
 
-	db := sql.OpenDB(connector)
+	dbConnector := driver.Connector(connector)
+	if strings.TrimSpace(config.QuackQuery) != "" {
+		dbConnector = &quackConnector{inner: dbConnector, addr: config.QuackQuery}
+	}
+
+	db := sql.OpenDB(dbConnector)
 
 	maxOpen := 25
 	if config.MaxOpenConns > 0 {
