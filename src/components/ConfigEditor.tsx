@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, InlineSwitch, Input, SecretInput, TextArea } from '@grafana/ui';
+import { InlineField, InlineSwitch, Input, SecretInput, TextArea, useTheme2 } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DuckDBDataSourceOptions, SecureJsonData } from '../types';
 
@@ -8,6 +8,7 @@ interface Props extends DataSourcePluginOptionsEditorProps<DuckDBDataSourceOptio
 export function ConfigEditor(props: Props) {
   const { onOptionsChange, options } = props;
   const { jsonData, secureJsonFields, secureJsonData } = options;
+  const theme = useTheme2();
 
   const onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
     onOptionsChange({
@@ -95,14 +96,17 @@ export function ConfigEditor(props: Props) {
       </InlineField>
       <InlineField label="Init SQL" labelWidth={20} interactive
                      tooltip={'(Optional) SQL to run when connection is established'}>
+        <div style={{ width: theme.spacing(40) }}>
           <TextArea
-              id="config-editor-init-sql"
-              onChange={onInitSqlChange}
-              value={jsonData.initSql || ''}
-              placeholder="e.g. INSTALL 'httpfs'; LOAD 'httpfs';"
-              width={60}
-              rows={5}
+            id="config-editor-init-sql"
+            onChange={onInitSqlChange}
+            value={jsonData.initSql || ''}
+            placeholder="e.g. INSTALL 'httpfs'; LOAD 'httpfs';"
+            rows={5}
+            // Grafana defaults textareas to vertical-only resize; allow width adjustment too.
+            style={{ resize: 'both' }}
           />
+        </div>
       </InlineField>
       <InlineField label="Quack Query" labelWidth={20} interactive
                      tooltip={'(Optional) Remote Quack server address. When set, panel queries are routed via quack_query() instead of running locally.'}>
